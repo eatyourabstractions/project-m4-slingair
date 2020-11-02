@@ -1,0 +1,25 @@
+
+
+###
+GET http://localhost:8000/allFlights HTTP/1.1
+
+###
+GET http://localhost:8000/flightInfo/SA231 HTTP/1.1
+
+###
+GET http://localhost:8000/flightInfo/SA232 HTTP/1.1
+
+###
+GET http://localhost:8000/allReservations HTTP/1.1
+
+###
+GET http://localhost:8000/getReservation/88a33c23-3332-4ef2-bd71-be7a6430485f HTTP/1.1
+
+###
+POST http://localhost:8000/addReservation/michael/matos/mike@matos/SA231/1B HTTP/1.1
+
+###
+PUT http://localhost:8000/updateReservation/SA231/4D/givenName/charlie HTTP/1.1
+
+###
+DELETE http://localhost:8000/deleteReservation/SA231/4D HTTP/1.1

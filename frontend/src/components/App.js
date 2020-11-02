@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import styled from "styled-components";
 import { BrowserRouter, Switch, Route } from "react-router-dom";
 import Header from "./Header";
@@ -7,17 +7,29 @@ import SeatSelect from "./SeatSelect";
 import Confirmation from "./Confirmation";
 import GlobalStyles, { themeVars } from "./GlobalStyles";
 
+
 const App = () => {
   const [userReservation, setUserReservation] = useState({});
+  const [updateUser, updateUserReservation] = useState(false);
+  const didMount = useRef(false);
 
-  const updateUserReservation = (newData) => {
-    setUserReservation({ ...userReservation, ...newData });
-  };
-
+  
   useEffect(() => {
     // TODO: check localStorage for an id
     // if yes, get data from server and add it to state
-  }, [setUserReservation]);
+    if(didMount.current) {
+        let reservationID = localStorage.getItem('reservationID')
+        console.log(reservationID)
+        let getReservationUrl = `http://localhost:8000/getReservation/${reservationID}`
+        fetch(getReservationUrl)
+          .then(res => res.json())
+          .then(response => {
+            console.log(response)
+            localStorage.setItem('currentUserInfo', JSON.stringify(response.data[0]) )
+            setUserReservation({ ...userReservation, ...response.data[0] })})
+        }
+        didMount.current = true;
+  }, [updateUser]);
 
   return (
     <BrowserRouter>
@@ -26,7 +38,7 @@ const App = () => {
       <Main>
         <Switch>
           <Route exact path="/">
-            <SeatSelect />
+            <SeatSelect updateUserReservation={updateUserReservation}/>
           </Route>
           <Route exact path="/confirmed">
             <Confirmation />

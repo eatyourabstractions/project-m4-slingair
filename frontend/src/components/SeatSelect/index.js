@@ -7,10 +7,11 @@ const initialState = { seat: "", givenName: "", surname: "", email: "" };
 
 const SeatSelect = ({ updateUserReservation }) => {
   const history = useHistory();
-  const [flightNumber, setFlightNumber] = useState(null);
+  const [flightNumber, setFlightNumber] = useState('Select flight');
   const [formData, setFormData] = useState(initialState);
   const [disabled, setDisabled] = useState(true);
   const [subStatus, setSubStatus] = useState("idle");
+  const [onSubmit , setOnSubmit] = useState(false);
 
   useEffect(() => {
     // This hook is listening to state changes and verifying whether or not all
@@ -20,7 +21,9 @@ const SeatSelect = ({ updateUserReservation }) => {
       : setDisabled(false);
   }, [flightNumber, formData, setDisabled]);
 
+  
   const handleFlightSelect = (ev) => {
+    localStorage.setItem('flightNumber', ev.target.value)
     setFlightNumber(ev.target.value);
   };
 
@@ -41,6 +44,31 @@ const SeatSelect = ({ updateUserReservation }) => {
     );
   };
 
+  useEffect(() => {
+    // TODO: check localStorage for an id
+    // if yes, get data from server and add it to state
+    let name = formData.givenName;
+    let surname = formData.surname;
+    let email = formData.email;
+    let flightNumber = localStorage.getItem('flightNumber')
+    let seat = formData.seat
+
+    const addIt = () =>{
+      let addReservationUrl = `http://localhost:8000/addReservation/${name}/${surname}/${email}/${flightNumber}/${seat}`
+      fetch(addReservationUrl,{method: 'POST'})
+        .then(res => res.json())
+        .then(response => {
+          localStorage.setItem('reservationID', response.data.id)
+          updateUserReservation(x => !x)
+          history.push('/confirmed')
+        })
+
+    }
+    if(name.length > 0){
+      addIt()
+    }
+  }, [onSubmit]);
+
   const handleSubmit = (ev) => {
     ev.preventDefault();
     if (validateEmail()) {
@@ -48,6 +76,8 @@ const SeatSelect = ({ updateUserReservation }) => {
       // TODO: if 201, add reservation id (received from server) to localStorage
       // TODO: if 201, redirect to /confirmed (push)
       // TODO: if error from server, show error to user (stretch goal)
+      setOnSubmit(y => !y)
+      //history.push('/confirmed')
     }
   };
 
